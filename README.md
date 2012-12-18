@@ -22,11 +22,16 @@ Encode a vector of coordinates:
 
 returns a polyline-encoded string
 
-(encode expects a vector of maps - you can use to-coords to turn a
+-- encode expects a sequence of vectors of the format [latitude
+longitude] - if you have this as a sequence of maps of the format
+{:longitude longitude :latitude latitude} you can use (coords->vec) to
+turn it into the right format.
+
+- you can use to-coords to turn a
 vector of [latitude longitude] vectors into this format)
 
 ## License
 
-Copyright © 2012 FIXME
+Copyright © 2012 Michael Gaare
 
 Distributed under the Eclipse Public License, the same as Clojure.
