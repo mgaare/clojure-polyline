@@ -83,10 +83,10 @@
         end (last decimals)]
     (->> decimals
          drop-last
-         (map (+ 32))
+         (map (partial + 32))
          reverse
          (cons end)
-         (map (+ 63))
+         (map (partial + 63))
          reverse)))
 
 (defn ints->str [ints]
@@ -102,3 +102,22 @@
       chunk-bits
       bins->padded-ints
       ints->str))
+
+(defn compact-coords 
+  "Takes a vector of coord vectors, and returns a vector of vectors of
+   the difference from the previous coord. The format that polyline wants"
+  ([coords]
+     (let [rc (reverse coords)
+           s seq]
+       (when-let [])
+       
+       (reverse (compact-coords (first coords) (first (rest coords) )))
+       
+       )
+     )
+  ([coords rem-coords]
+     (when-let [])
+  
+     )
+  
+  
