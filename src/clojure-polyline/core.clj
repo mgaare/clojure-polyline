@@ -32,9 +32,12 @@
 (defn split [ints]
   (partition-by-inclusive #(> % 31) ints))
 
-(defn to-coords [coord-vec]
+(defn vec->coords [coord-vec]
   (map (fn [[lat long]] (hash-map :latitude lat :longitude long))
        coord-vec))
+
+(defn coords->vec [coords]
+  (map (fn [{:keys [latitude longitude]}] [latitude longitude]) coords))
 
 ;; -------------------------------------------------------
 ;; Decode functions
@@ -107,17 +110,14 @@
   "Takes a vector of coord vectors, and returns a vector of vectors of
    the difference from the previous coord. The format that polyline wants"
   ([coords]
-     (let [rc (reverse coords)
-           s seq]
-       (when-let [])
-       
-       (reverse (compact-coords (first coords) (first (rest coords) )))
-       
-       )
-     )
-  ([coords rem-coords]
-     (when-let [])
-  
-     )
-  
-  
+     (let [c (reverse coords)]
+       (when-let [x (first c)]
+         (compact-coords x (rest c)))))
+  ([x rem]
+     (if-let [y (first rem)]
+       (conj (compact-coords y (rest rem)) (vec (map - x y)))
+       [x])))
+
+(defn encode [coords] "Main encoding interface"
+  (let [c (flatten (compact-coords coords))]
+    (apply str (map encode-coord c))))
