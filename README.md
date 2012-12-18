@@ -1,22 +1,25 @@
 # clojure-polyline
 
-A Leiningen plugin to do many wonderful things.
+Decoding and encoding of the google polyline algorithm
 
-## Usage
+# usage
 
-FIXME: Use this for user-level plugins:
+(require clojure-polyline.core :as polyline)
 
-Put `[clojure-polyline "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your
-`:user` profile, or if you are on Leiningen 1.x do `lein plugin install
-clojure-polyline 0.1.0-SNAPSHOT`.
+Decode a polyline string:
 
-FIXME: Use this for project-level plugins:
+(polyline/decode polystring)
 
-Put `[clojure-polyline "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your project.clj.
+Returns a vector of maps: [{:latitude long :longitude long} ...]
 
-FIXME: and add an example usage that actually makes sense:
+Encode a vector of coordinates:
 
-    $ lein clojure-polyline
+(polyline/encode coords)
+
+returns a polyline-encoded string
+
+(encode expects a vector of maps - you can use to-coords to turn a
+vector of [latitude longitude] vectors into this format)
 
 ## License
 
