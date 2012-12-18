@@ -4,6 +4,10 @@ Decoding and encoding of the google polyline algorithm
 
 # usage
 
+```clojure
+[clojure-polyline "0.1"]
+```
+
 (require clojure-polyline.core :as polyline)
 
 Decode a polyline string:
