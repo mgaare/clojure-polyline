@@ -39,6 +39,17 @@
 (defn coords->vec [coords]
   (map (fn [{:keys [latitude longitude]}] [latitude longitude]) coords))
 
+(defn- coord->int [coord]
+  (-> coord
+      (* 1e5)
+      Math/rint
+      int))
+
+(defn ints->str [ints]
+  (->> ints
+       (map char)
+       (apply str)))
+
 ;; -------------------------------------------------------
 ;; Decode functions
 ;; -------------------------------------------------------
@@ -53,38 +64,31 @@
         poly-chunks (split poly-ints)
         decoded-chunks (map decode-chunk poly-chunks)]
     (->> decoded-chunks (map double) (partition 2) (combiner +)
-         (to-coords))))
+         (vec->coords))))
 
 ;; -------------------------------------------------------
 ;; Encode functions
 ;; -------------------------------------------------------
 
-(defn coord->int [coord]
-  (-> coord
-      (* 1e5)
-      Math/rint
-      int))
-
-(defn invert-negative [int]
+(defn- invert-negative [int]
   (if (neg? int)
     (bit-not int)
     int))
 
-(defn chunk-bits [int]
-  (let [bitstring (Integer/toString int 2)]
-    (->> bitstring
-         reverse
-         (partition 5 5 nil)
-         (map reverse)
-         (map #(apply str %)))))
+(defn- partition-bits
+  "takes an integer, and the number of bits in segments, and returns a seq of
+   integers which correspond to the integer broken down into segments with the
+   given number of bits"
+  [n bits]
+  (when (> n 0)
+    (let [bits-int (reduce * (repeat bits 2))
+          cur (mod n bits-int)
+          rem (/ (- n cur) bits-int)]
+      (cons cur (partition-bits rem bits)))))
 
-(defn bin->int [bin]
-  (Integer/parseInt bin 2))
-
-(defn bins->padded-ints [bins]
-  (let [decimals (map bin->int bins)
-        end (last decimals)]
-    (->> decimals
+(defn- pad-ints [ints]
+  (let [end (last ints)]
+    (->> ints
          drop-last
          (map (partial + 32))
          reverse
@@ -92,18 +96,13 @@
          (map (partial + 63))
          reverse)))
 
-(defn ints->str [ints]
-  (->> ints
-       (map char)
-       (apply str)))
-
 (defn encode-coord [coord]
   (-> coord
       coord->int
       (bit-shift-left 1)
       invert-negative
-      chunk-bits
-      bins->padded-ints
+      (partition-bits 5)
+      pad-ints
       ints->str))
 
 (defn compact-coords 
