@@ -1,4 +1,4 @@
-(ns clojure-polyline.core)
+(ns com.michaelgaare.clojure-polyline)
 
 ;; -------------------------------------------------------
 ;; Utility functions

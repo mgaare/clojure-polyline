@@ -1,5 +1,0 @@
-(ns clojure-polyline.test
-  (:use clojure.test))
-
-(deftest koe
-  (is (= 1 1)))

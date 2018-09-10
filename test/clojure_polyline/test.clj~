@@ -1,3 +1,0 @@
-(ns clojure-polyline.test)
-
-(is (= 1 1))
