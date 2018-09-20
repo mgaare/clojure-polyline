@@ -1,14 +1,15 @@
 # clojure-polyline
 
-Decoding and encoding of the google polyline algorithm
+Decoding and encoding of the google polyline algorithm as described at
+https://developers.google.com/maps/documentation/utilities/polylinealgorithm
 
 # usage
 
 ```clojure
-[clojure-polyline "0.1"]
+[com.michaelgaare.clojure-polyline "0.2.0-SNAPSHOT"]
 ```
 
-(require clojure-polyline.core :as polyline)
+(require com.michaelgaare.clojure-polyline :as polyline)
 
 Decode a polyline string:
 
@@ -32,6 +33,6 @@ vector of [latitude longitude] vectors into this format)
 
 ## License
 
-Copyright © 2012 Michael Gaare
+Copyright © 2018 Michael Gaare
 
 Distributed under the Eclipse Public License, the same as Clojure.
