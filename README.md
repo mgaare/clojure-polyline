@@ -6,7 +6,7 @@ https://developers.google.com/maps/documentation/utilities/polylinealgorithm
 # usage
 
 ```clojure
-[com.michaelgaare.clojure-polyline "0.2.0-SNAPSHOT"]
+[com.michaelgaare.clojure-polyline "0.2.0"]
 ```
 
 (require com.michaelgaare.clojure-polyline :as polyline)
