@@ -15,7 +15,7 @@ Current stable release is 0.3.0, which requires Clojure 1.7 or later.
 # Usage
 
 ```clojure
-(require com.michaelgaare.clojure-polyline :as polyline)
+(require '[com.michaelgaare.clojure-polyline :as polyline])
 
 ;; Decode a polyline string:
 (polyline/decode "_p~iF~ps|U_ulLnnqC_mqNvxq`@")
