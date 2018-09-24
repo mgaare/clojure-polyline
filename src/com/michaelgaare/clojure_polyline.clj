@@ -1,36 +1,9 @@
-(ns com.michaelgaare.clojure-polyline)
+(ns com.michaelgaare.clojure-polyline
+  "Functions to encode and decode Google polyline algorithm.")
 
 ;; -------------------------------------------------------
 ;; Utility functions
 ;; -------------------------------------------------------
-
-(defn partition-by-inclusive
-  "like partition-by, but also puts the first non-matching element
-  in the split, and only groups results that return true in the pred f"
-  [f coll]
-  (lazy-seq
-   (when-let [s (seq coll)]
-     (let [run (take-while #(f %) s)
-           rem (seq (drop (count run) s))
-           included (first rem)
-           run-inc (concat run (vector included))]
-       (cons run-inc (partition-by-inclusive f (rest rem)))))))
-
-(defn combiner
-  "takes a function and a sequence, and then returns a sequence of applying the
-  function to the first element in the sequence, and then the result of that and
-  the second element, and so on"
-  ([f xs] (lazy-seq
-           (when-let [s (seq xs)]
-             (let [run (map f (first s))]
-               (cons run (combiner f run (rest s)))))))
-  ([f x y] (lazy-seq
-            (when-let [s ( seq y)]
-              (let [run (map f x (first s))]
-                (cons run (combiner f run (rest s))))))))
-
-(defn split [ints]
-  (partition-by-inclusive #(> % 31) ints))
 
 (defn vec->coords [coord-vec]
   (map (fn [[lat long]] (hash-map :latitude lat :longitude long))
@@ -39,32 +12,57 @@
 (defn coords->vec [coords]
   (map (fn [{:keys [latitude longitude]}] [latitude longitude]) coords))
 
-(defn- coord->int
-  [coord]
-  (-> coord
-      (* 1e5)
-      Math/round))
-
-(defn ints->str [ints]
-  (->> ints
-       (map char)
-       (apply str)))
-
 ;; -------------------------------------------------------
 ;; Decode functions
 ;; -------------------------------------------------------
 
-(defn decode-chunk [c]
-  (let [pc (reduce #(+ (bit-shift-left %1 5) %2) (reverse (map #(bit-and-not % 32) c)))
-        neg (= 1 (mod pc 2))]
-    (/ (bit-shift-right (if neg (bit-not pc) pc) 1) 100000)))
+(defn- restore-negative
+  "Restores x to negative, if x is polyline encoded as negative."
+  [x]
+  (cond-> x
+    (bit-test x 0) bit-not))
 
-(defn decode [polystring]
-  (let [poly-ints (map #(- % 63) (map int polystring))
-        poly-chunks (split poly-ints)
-        decoded-chunks (map decode-chunk poly-chunks)]
-    (->> decoded-chunks (map double) (partition 2) (combiner +)
-         (vec->coords))))
+(defn poly-number
+  "Transducer that transforms characters from a polyline string into the
+   raw decoded numbers, without double or negative conversion."
+  [rf]
+  (let [acc (volatile! 0)
+        seen (volatile! 0)]
+    (fn
+      ([] (rf))
+      ;; if we get stopped with leftover accumulator, nothing to be
+      ;; done about it
+      ([result] (rf result))
+      ([result c]
+       (let [c-int (-> c int (- 63))
+             complete? (< c-int 32)
+             cur (vswap! acc +
+                         (-> c-int
+                             (bit-and-not 32)
+                             (bit-shift-left (* @seen 5))))]
+         (if complete?
+           (do
+             (vreset! acc 0)
+             (vreset! seen 0)
+             (rf result cur))
+           (do
+             (vswap! seen inc)
+             result)))))))
+
+(defn decode
+  "Takes a polyline-encoded string and returns a collection of
+   decoded [lat long] coordintes."
+  [polystring]
+  (->> polystring
+       (sequence (comp poly-number
+                       (map restore-negative)
+                       (map #(bit-shift-right % 1))
+                       (map #(/ % 100000))
+                       (map double)
+                       (partition-all 2)))
+       (reductions (fn [[xlat xlong] [ylat ylong]]
+                     [(+ xlat ylat) (+ xlong ylong)]))
+       vec))
 
 ;; -------------------------------------------------------
 ;; Encode functions
