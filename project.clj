@@ -1,4 +1,4 @@
-(defproject com.michaelgaare/clojure-polyline "0.3.0-SNAPSHOT"
+(defproject com.michaelgaare/clojure-polyline "0.3.0"
   :description "library to encode and decode google polyline algorithm"
   :url "http://github.com/mgaare/clojure-polyline"
   :license {:name "Eclipse Public License"
