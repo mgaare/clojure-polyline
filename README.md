@@ -20,7 +20,6 @@ Current stable release is 0.3.0, which requires Clojure 1.7 or later.
 ;; Decode a polyline string:
 (polyline/decode "_p~iF~ps|U_ulLnnqC_mqNvxq`@")
 ;; => ({:longitude -120.2, :latitude 38.5} {:longitude -120.95, :latitude 40.7} {:longitude -126.453, :latitude 43.252})
-n
 
 ;; Encode a collection of coordinates:
 (polyline/encode [[38.5 -120.2] [40.7 -120.95] [43.252 -126.453]])
