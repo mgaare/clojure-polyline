@@ -116,22 +116,29 @@
           (recur nxt-rem sb)
           (.toString sb))))))
 
-(defn compact-coords
-  "Takes a vector of coord vectors, and returns a vector of vectors of
-   the difference from the previous coord. The format that polyline wants"
-    ([coords]
-     (when-let [x (first coords)]
-       (cons x (compact-coords x (rest coords)))))
-    ([x coords]
-     (when-let [y (first coords)]
-       (let [[xlat xlong] x
-             [ylat ylong] y]
-         (cons [(- ylat xlat) (- ylong xlong)] (compact-coords y (rest coords)))))))
+(defn compress
+  "Transducer that compresses polyline coordinates by turning them into
+   deltas from the previous coord."
+  [rf]
+  (let [prev (volatile! nil)]
+    (fn
+      ([] (rf))
+      ([result] (rf result))
+      ([result [lat lon]]
+       (let [compressed (if-let [[prev-lat prev-lon] @prev]
+                          [(- lat prev-lat) (- lon prev-lon)]
+                          [lat lon])]
+         (vreset! prev [lat lon])
+         (rf result compressed))))))
+
+(def encoder
+  "Transducer stack for encoding."
+  (comp compress
+        cat
+        (map encode-coord)))
 
 (defn encode
   "Main polyline encoding function. Takes a collection of [lat long]
    tuples and returns the polyline encoded string representation."
   [coords]
-  (transduce (comp cat (map encode-coord))
-             str
-             (compact-coords coords)))
+  (transduce encoder str coords))
