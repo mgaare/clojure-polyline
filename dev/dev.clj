@@ -125,11 +125,33 @@
      (reduce #(+ (bit-shift-left %1 5) %2)))
 
 
-;; expected result:
-(->> encoded
-     (map int)
-     (map #(- % 63))
-     cp/split)
+;;; full on transducering
+
+(defn decompress
+  "Transducer that decompresses polyline coordinates that have been
+   compressed by turning them into deltas from the previous coord."
+  [rf]
+  (let [prev (volatile! nil)]
+    (fn
+      ([] (rf))
+      ([result] (rf result))
+      ([result [lat lon]]
+       (let [decompressed (if-let [[prev-lat prev-lon] @prev]
+                            [(+ lat prev-lat) (+ lon prev-lon)]
+                            [lat lon])]
+         (vreset! prev decompressed)
+         (rf result decompressed))))))
+
+(def decoder
+  (comp poly-number
+        (map restore-negative)
+        (map #(bit-shift-right % 1))
+        (map #(/ % 100000))
+        (map double)
+        (partition-all 2)
+        decompress))
+
+;(into [] decoder encoded)
 
 ;; ((32 49 63 42 7) (63 49 52 61 22) (32 54 45 13) (47 47 50 4) (32 46 50 15) (55 57 50 33 1))
 
@@ -165,3 +187,17 @@
 ;;                    Overhead used : 8.952324 ns
 
 ;; only a 4x increase, ohhh well
+
+;;;; We can take transducing further
+;;; make coordinate decompression a transducer
+
+;; (quick-bench (into [] decoder encoded))
+
+;; Evaluation count : 70290 in 6 samples of 11715 calls.
+;;              Execution time mean : 8.681470 µs
+;;     Execution time std-deviation : 97.379615 ns
+;;    Execution time lower quantile : 8.585265 µs ( 2.5%)
+;;    Execution time upper quantile : 8.791951 µs (97.5%)
+;;                    Overhead used : 8.551082 ns
+
+;; groovy!
