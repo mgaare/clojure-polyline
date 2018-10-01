@@ -5,13 +5,6 @@
 ;; Utility functions
 ;; -------------------------------------------------------
 
-(defn vec->coords [coord-vec]
-  (map (fn [[lat long]] (hash-map :latitude lat :longitude long))
-       coord-vec))
-
-(defn coords->vec [coords]
-  (map (fn [{:keys [latitude longitude]}] [latitude longitude]) coords))
-
 (defn latlon
   "Converts a coordinate in [lon lat] format to [lat lon]."
   [[lon lat :as coord]]
