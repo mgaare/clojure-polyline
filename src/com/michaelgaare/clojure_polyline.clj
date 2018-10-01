@@ -49,20 +49,36 @@
              (vswap! seen inc)
              result)))))))
 
+(defn decompress
+  "Transducer that decompresses polyline coordinates that have been
+   compressed by turning them into deltas from the previous coord."
+  [rf]
+  (let [prev (volatile! nil)]
+    (fn
+      ([] (rf))
+      ([result] (rf result))
+      ([result [lat lon]]
+       (let [decompressed (if-let [[prev-lat prev-lon] @prev]
+                            [(+ lat prev-lat) (+ lon prev-lon)]
+                            [lat lon])]
+         (vreset! prev decompressed)
+         (rf result decompressed))))))
+
+(def decoder
+  "Transducer stack for decoding."
+  (comp poly-number
+        (map restore-negative)
+        (map #(bit-shift-right % 1))
+        (map #(/ % 100000))
+        (map double)
+        (partition-all 2)
+        decompress))
+
 (defn decode
   "Takes a polyline-encoded string and returns a collection of
    decoded [lat long] coordintes."
   [polystring]
-  (->> polystring
-       (sequence (comp poly-number
-                       (map restore-negative)
-                       (map #(bit-shift-right % 1))
-                       (map #(/ % 100000))
-                       (map double)
-                       (partition-all 2)))
-       (reductions (fn [[xlat xlong] [ylat ylong]]
-                     [(+ xlat ylat) (+ xlong ylong)]))
-       vec))
+  (into [] decoder polystring))
 
 ;; -------------------------------------------------------
 ;; Encode functions
