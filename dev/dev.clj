@@ -153,6 +153,30 @@
 
 ;(into [] decoder encoded)
 
+(defn compress
+  "Transducer that compresses polyline coordinates by turning them into
+   deltas from the previous coord."
+  [rf]
+  (let [prev (volatile! nil)]
+    (fn
+      ([] (rf))
+      ([result] (rf result))
+      ([result [lat lon]]
+       (let [compressed (if-let [[prev-lat prev-lon] @prev]
+                          [(- lat prev-lat) (- lon prev-lon)]
+                          [lat lon])]
+         (vreset! prev [lat lon])
+         (rf result compressed))))))
+
+
+(def encoder
+  "Transducer stack for encoding."
+  (comp compress
+        cat
+        (map cp/encode-coord)))
+
+(transduce encoder str coords)
+
 ;; ((32 49 63 42 7) (63 49 52 61 22) (32 54 45 13) (47 47 50 4) (32 46 50 15) (55 57 50 33 1))
 
 ;;; quick reminder of current performance
@@ -201,3 +225,17 @@
 ;;                    Overhead used : 8.551082 ns
 
 ;; groovy!
+
+
+;;;; Can we do the same thing on the encode side??
+
+;; (quick-bench (transduce encoder str coords))
+
+;; Evaluation count : 274830 in 6 samples of 45805 calls.
+;;              Execution time mean : 2.239668 µs
+;;     Execution time std-deviation : 43.218416 ns
+;;    Execution time lower quantile : 2.199597 µs ( 2.5%)
+;;    Execution time upper quantile : 2.302447 µs (97.5%)
+;;                    Overhead used : 8.551082 ns
+
+;; more or less on par with before, perhaps slight edge, but I like it way better
