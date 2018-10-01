@@ -12,6 +12,16 @@
 (defn coords->vec [coords]
   (map (fn [{:keys [latitude longitude]}] [latitude longitude]) coords))
 
+(defn latlon
+  "Converts a coordinate in [lon lat] format to [lat lon]."
+  [[lon lat :as coord]]
+  [lat lon])
+
+(defn lonlat
+  "Converts a coordinate in [lat lon] format to [lon lat]."
+  [[lat lon :as coord]]
+  [lon lat])
+
 ;; -------------------------------------------------------
 ;; Decode functions
 ;; -------------------------------------------------------
