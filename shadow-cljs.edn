@@ -1,0 +1,4 @@
+{:lein   true
+ :builds {:test {:target    :node-test
+                 :auto-run  true
+                 :output-to "target/node/test.js"}}}

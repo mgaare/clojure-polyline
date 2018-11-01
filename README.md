@@ -43,6 +43,10 @@ latitude]` pairs as some systems expect, you can do:
 
 ## Changelog
 
+* Release 0.4.1 on YYYY-MM-DD
+  * Support for ClojureScript
+  * 5 decimal place encode and decode (aligning with the google algorithm)
+
 * Release 0.4.0 on 2018-10-01
   * BREAKING CHANGE: the decode API now matches the encode API:
     encode was always `[[lat lon]] => String`, now decode is `String => [[lat lon]]`.
@@ -59,6 +63,10 @@ latitude]` pairs as some systems expect, you can do:
   * Minimum Clojure version is now 1.7 (because transducers)
   * The `encode` codepath completely rewritten to scrub out some of
     the wacky stuff I did 6 years ago. As a result it's 19x faster.
+
+## Contributors
+
+* [Alex Scott (AXRS)](https://github.com/axrs)
 
 ## License
 
