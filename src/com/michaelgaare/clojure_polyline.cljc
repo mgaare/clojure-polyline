@@ -19,14 +19,14 @@
   "CLJ: Appends a character to the StringBuilder.
    CLJS: Appends a character to the string."
   [sb c]
-  #?(:clj  (.append sb c)
+  #?(:clj  (.append ^StringBuilder sb c)
      :cljs (str sb c)))
 
 (defn- sb->str
   "CLJ: Converts the StringBuilder to a string.
    CLJS: Returns the given string"
   [sb]
-  #?(:clj  (.toString sb)
+  #?(:clj  (.toString ^StringBuilder sb)
      :cljs sb))
 
 (defn- string-builder
