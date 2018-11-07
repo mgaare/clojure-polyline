@@ -43,7 +43,7 @@ latitude]` pairs as some systems expect, you can do:
 
 ## Changelog
 
-* Release 0.4.1 on YYYY-MM-DD
+* Release 0.4.1 on 2018-11-07
   * Support for ClojureScript
   * 5 decimal place encode and decode (aligning with the google algorithm)
 

@@ -1,6 +1,8 @@
-(defproject com.michaelgaare/clojure-polyline "0.4.1-SNAPSHOT"
+(def VERSION (.trim (slurp "VERSION")))
+
+(defproject io.jesi/clojure-polyline VERSION
   :description "library to encode and decode google polyline algorithm"
-  :url "http://github.com/mgaare/clojure-polyline"
+  :url "http://github.com/jesims/clojure-polyline"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]]
