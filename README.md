@@ -3,14 +3,9 @@
 Decoding and encoding of the google polyline algorithm as described at
 https://developers.google.com/maps/documentation/utilities/polylinealgorithm
 
-# Releases
+[![CircleCI](https://circleci.com/gh/jesims/clojure-polyline.svg?style=svg)](https://circleci.com/gh/jesims/clojure-polyline)
 
-Current stable release is 0.4.0, which requires Clojure 1.7 or later.
-
-[Leiningen](https://github.com/technomancy/leiningen) dependency information:
-```clojure
-[com.michaelgaare/clojure-polyline "0.4.0"]
-```
+[![Clojars Project](https://img.shields.io/clojars/v/io.jesi/clojure-polyline.svg)](https://clojars.org/io.jesi/clojure-polyline)
 
 # Usage
 
