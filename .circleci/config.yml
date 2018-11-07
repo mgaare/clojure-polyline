@@ -1,0 +1,99 @@
+#TODO use Clojure config
+version: 2
+aliases:
+  cache:
+    lein_cache: &LEIN_CACHE
+      key: lein-{{ checksum "project.clj" }}
+      paths:
+      - project.sh
+      - ~/.lein
+      - ~/.m2
+  containers:
+    docker: &DEFAULT
+    - image: jesiio/build-bus:latest
+      environment:
+        JVM_OPTS: -Xmx3200m
+        DEBUG: 1
+  commands:
+    cancel_redundant: &CANCEL_REDUNDANT
+      run:
+        name: Check & Cancel Redundant Build
+        command: 'cancel-redundant-builds.sh'
+jobs:
+  deps:
+    docker: *DEFAULT
+    steps:
+    - *CANCEL_REDUNDANT
+    - checkout
+    - restore_cache:
+        <<: *LEIN_CACHE
+    - run: './clojure-polyline.sh deps'
+    - save_cache:
+        <<: *LEIN_CACHE
+  test_clj:
+    docker: *DEFAULT
+    steps:
+    - *CANCEL_REDUNDANT
+    - checkout
+    - restore_cache:
+        <<: *LEIN_CACHE
+    - run: './clojure-polyline.sh unit-test'
+    - save_cache:
+        <<: *LEIN_CACHE
+  test_cljs:
+    docker: *DEFAULT
+    steps:
+    - *CANCEL_REDUNDANT
+    - checkout
+    - restore_cache:
+        <<: *LEIN_CACHE
+    - run: './clojure-polyline.sh unit-test-cljs'
+    - save_cache:
+        <<: *LEIN_CACHE
+  snapshot:
+    docker: *DEFAULT
+    steps:
+    - *CANCEL_REDUNDANT
+    - checkout
+    - restore_cache:
+        <<: *LEIN_CACHE
+    - run: './clojure-polyline.sh snapshot'
+    - save_cache:
+        <<: *LEIN_CACHE
+  release:
+    docker: *DEFAULT
+    steps:
+    - *CANCEL_REDUNDANT
+    - checkout
+    - restore_cache:
+        <<: *LEIN_CACHE
+    - run: './clojure-polyline.sh release'
+    - save_cache:
+        <<: *LEIN_CACHE
+workflows:
+  version: 2
+  build:
+    jobs:
+    - deps
+    - test_clj:
+        requires:
+        - deps
+    - test_cljs:
+        requires:
+        - deps
+    - snapshot:
+        context: JESI
+        requires:
+        - test_clj
+        - test_cljs
+        filters:
+          branches:
+            ignore: /^(master|develop)$/
+    - release:
+        context: JESI
+        requires:
+        - test_clj
+        - test_cljs
+        filters:
+          branches:
+            only: master
