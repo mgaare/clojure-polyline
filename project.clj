@@ -12,4 +12,9 @@
                                   [thheller/shadow-cljs "2.6.22"]]
                    :plugins      [[lein-shell "0.5.0"]]
                    :source-paths ["dev"]}}
-  :aliases {"node-test" ["do" "run" "-m" "shadow.cljs.devtools.cli" "release" "test," "shell" "node" "target/node/test.js"]})
+  :aliases {"node-test" ["do" "run" "-m" "shadow.cljs.devtools.cli" "release" "test," "shell" "node" "target/node/test.js"]}
+  :deploy-repositories [["clojars" {:url           "https://clojars.org/repo"
+                                    :username      :env/clojars_username
+                                    :password      :env/clojars_password
+                                    :sign-releases false}]])
+
